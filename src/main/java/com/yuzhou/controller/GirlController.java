@@ -2,10 +2,14 @@ package com.yuzhou.controller;
 
 import com.yuzhou.mapper.GirlMapper;
 import com.yuzhou.model.Girl;
+import com.yuzhou.model.Result;
 import com.yuzhou.service.GirlService;
+import com.yuzhou.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +18,6 @@ public class GirlController {
 
     @Autowired
     private GirlMapper mapper;
-
     @Autowired
     private GirlService service;
 
@@ -24,15 +27,15 @@ public class GirlController {
     }
 
     @PostMapping(value = "/girls")
-    public Girl girlAdd(@RequestParam("id") Integer id,
-                        @RequestParam("cupSize") String cupSize,
-                        @RequestParam("age") Integer age) {
-        Girl girl = new Girl();
-        girl.setId(id);
-        girl.setCupSize(cupSize);
-        girl.setAge(age);
+    public Result<Girl> girlAdd(@Valid Girl girl, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResultUtil.error(1, bindingResult.getFieldError().getDefaultMessage());
+        }
+        girl.setId(girl.getId());
+        girl.setCupSize(girl.getCupSize());
+        girl.setAge(girl.getAge());
 
-        return mapper.save(girl);
+        return ResultUtil.success(girl);
     }
 
     @GetMapping(value = "/girls/{id}")
@@ -67,9 +70,14 @@ public class GirlController {
     }
 
     @PostMapping(value = "/girls/two")
-    public boolean insertTwo(){
+    public boolean insertTwo() {
         boolean success = service.insertTwo();
         return success;
+    }
+
+    @GetMapping(value = "girls/getAge/{id}")
+    public void getAge(@PathVariable("id")Integer id) throws Exception {
+        service.getAge(id);
     }
 
 }
